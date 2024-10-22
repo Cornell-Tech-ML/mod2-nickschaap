@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple, Protocol, Callable, Dict, Set, Any
+from typing import Iterable, Tuple, Protocol, Callable, Dict, Set, Any, Union
 
 # ## Task 1.1
 # Central Difference calculation
@@ -141,7 +141,7 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     return order
 
 
-def backpropagate(variable: Variable, deriv: float) -> None:
+def backpropagate(variable: Variable, deriv: Any) -> None:
     """Runs backpropagation on the computation graph in order to
     compute derivatives for the leave nodes.
 
@@ -154,7 +154,7 @@ def backpropagate(variable: Variable, deriv: float) -> None:
 
     """
     queue: Iterable[Variable] = topological_sort(variable)
-    derivatives: Dict[Variable, float] = {}
+    derivatives: Dict[Variable, Any] = {}
     derivatives[variable] = deriv
     for var in queue:
         d_var = derivatives[var]
