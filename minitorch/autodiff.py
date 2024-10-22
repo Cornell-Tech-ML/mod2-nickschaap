@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple, Protocol, Callable, Dict, Set, Any, Union
+from typing import Iterable, Tuple, Protocol, Callable, Dict, Set, Any
 
 # ## Task 1.1
 # Central Difference calculation

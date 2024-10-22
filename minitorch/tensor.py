@@ -249,6 +249,11 @@ class Tensor:
         return self.history is None
 
     @property
+    def dims(self) -> int:
+        """Get the number of dimensions of the tensor."""
+        return len(self.shape)
+
+    @property
     def parents(self) -> Iterable[Variable]:
         """Get the parent tensors of this tensor in the computation graph."""
         assert self.history is not None
@@ -373,9 +378,11 @@ class Tensor:
         """Sum reduce of the tensor."""
         return self.sum(dim) / self.size
 
-    def view(self, shape: TensorLike) -> Tensor:
+    def view(self, *shape: int) -> Tensor:
         """View of the tensor."""
-        return View.apply(self, self._ensure_tensor(shape))
+        return View.apply(
+            self, Tensor.make(list(shape), (len(shape),), backend=self.backend)
+        )
 
     def permute(self, *axes: int) -> Tensor:
         """Permute the dimensions of the tensor."""
