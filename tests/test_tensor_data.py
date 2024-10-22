@@ -4,12 +4,39 @@ from hypothesis.strategies import DataObject, data
 
 import minitorch
 from minitorch import TensorData
+from minitorch.tensor_data import index_to_position, to_index
 from minitorch.tensor_ops import SimpleBackend
 from .tensor_strategies import indices, tensor_data
-
+import numpy as np
 # ## Tasks 2.1
 
 # Check basic properties of layout and strides.
+
+
+@pytest.mark.task2_1
+def test_index_to_position() -> None:
+    """Test index to position conversion."""
+    assert index_to_position(np.array([3, 1]), np.array([5, 1])) == 16
+    assert index_to_position(np.array([0, 3]), np.array([5, 1])) == 3
+
+
+@pytest.mark.task2_1
+def test_to_index() -> None:
+    """Test index to position conversion."""
+    out_index = np.array([0, 0])
+    to_index(0, np.array([3, 1]), out_index)
+    assert out_index[0] == 0
+    assert out_index[1] == 0
+
+    out_index = np.array([0, 0])
+    to_index(1, np.array([3, 1]), out_index)
+    assert out_index[0] == 1
+    assert out_index[1] == 0
+
+    out_index = np.array([0, 0])
+    to_index(8, np.array([3, 3]), out_index)
+    assert out_index[0] == 2
+    assert out_index[1] == 2
 
 
 @pytest.mark.task2_1

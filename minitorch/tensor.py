@@ -94,6 +94,9 @@ class Tensor:
 
         self.f = backend
 
+    def __hash__(self) -> int:
+        return self.unique_id
+
     def requires_grad_(self, x: bool) -> None:
         self.history = History()
 
@@ -265,12 +268,6 @@ class Tensor:
             grad_output = Tensor.make([1.0], (1,), backend=self.backend)
         backpropagate(self, grad_output)
 
-    def __truediv__(self, b: TensorLike) -> Tensor:
-        return Mul.apply(self, Inv.apply(self._ensure_tensor(b)))
-
-    def __rtruediv__(self, b: TensorLike) -> Tensor:
-        return Mul.apply(self._ensure_tensor(b), Inv.apply(self))
-
     def __matmul__(self, b: Tensor) -> Tensor:
         """Not used until Module 3"""
         return MatMul.apply(self, b)
@@ -283,5 +280,102 @@ class Tensor:
         """
         return self._tensor.shape
 
+    @property
+    def size(self) -> int:
+        """Returns
+        shape of the tensor
+
+        """
+        return self._tensor.size
+
     # Functions
-    # TODO: Implement for Task 2.3.
+    def __mul__(self, b: TensorLike) -> Tensor:
+        return Mul.apply(self, self._ensure_tensor(b))
+
+    def __truediv__(self, b: TensorLike) -> Tensor:
+        return Mul.apply(self, Inv.apply(self._ensure_tensor(b)))
+
+    def __rtruediv__(self, b: TensorLike) -> Tensor:
+        return Mul.apply(self._ensure_tensor(b), Inv.apply(self))
+
+    def __radd__(self, b: TensorLike) -> Tensor:
+        return self + self._ensure_tensor(b)
+
+    def __rmul__(self, b: TensorLike) -> Tensor:
+        return self * self._ensure_tensor(b)
+
+    def __add__(self, b: TensorLike) -> Tensor:
+        """Addition."""
+        return Add.apply(self, self._ensure_tensor(b))
+
+    def __sub__(self, b: TensorLike) -> Tensor:
+        """Subtraction."""
+        return Add.apply(self, Neg.apply(self._ensure_tensor(b)))
+
+    def __rsub__(self, b: TensorLike) -> Tensor:
+        """Subtraction."""
+        return Add.apply(Neg.apply(self), self._ensure_tensor(b))
+
+    def __neg__(self) -> Tensor:
+        """Negation."""
+        return Neg.apply(self)
+
+    def __lt__(self, b: TensorLike) -> Tensor:
+        """Less than comparison."""
+        return LT.apply(self, self._ensure_tensor(b))
+
+    def __gt__(self, b: TensorLike) -> Tensor:
+        """Greater than comparison."""
+        return LT.apply(self._ensure_tensor(b), self)
+
+    def __eq__(self, b: TensorLike) -> Tensor:
+        """Equality comparison."""
+        return EQ.apply(self, self._ensure_tensor(b))
+
+    def relu(self) -> Tensor:
+        """Rectified linear unit function."""
+        return ReLU.apply(self)
+
+    def sigmoid(self) -> Tensor:
+        """Sigmoid function."""
+        return Sigmoid.apply(self)
+
+    def exp(self) -> Tensor:
+        """Exponential function."""
+        return Exp.apply(self)
+
+    def log(self) -> Tensor:
+        """Natural logarithm."""
+        return Log.apply(self)
+
+    def is_close(self, b: TensorLike) -> Tensor:
+        """Check if two tensors are close."""
+        return IsClose.apply(self, self._ensure_tensor(b))
+
+    def all(self) -> Tensor:
+        """Check if all elements are true."""
+        return All.apply(self)
+
+    def sum(self, dim: Optional[int] = None) -> Tensor:
+        """Sum reduce of the tensor."""
+        if dim is None:
+            return Sum.apply(self)
+        return Sum.apply(self, self._ensure_tensor(dim))
+
+    def mean(self, dim: Optional[int] = None) -> Tensor:
+        """Sum reduce of the tensor."""
+        return self.sum(dim) / self.size
+
+    def view(self, shape: TensorLike) -> Tensor:
+        """View of the tensor."""
+        return View.apply(self, self._ensure_tensor(shape))
+
+    def permute(self, *axes: int) -> Tensor:
+        """Permute the dimensions of the tensor."""
+        return Permute.apply(
+            self, Tensor.make(list(axes), (len(axes),), backend=self.backend)
+        )
+
+    def zero_grad_(self) -> None:
+        """Zero out the gradient."""
+        self.grad = None
